@@ -1,0 +1,160 @@
+<section aria-labelledby="sec-a360">
+  <h3 id="sec-a360">Stochastix AI</h3>
+  <mat-form-field appearance="outline">
+    <mat-label>Source agent</mat-label>
+    <mat-select [value]="store.source()" (selectionChange)="store.selectSource($event.value)">
+      @for (s of store.sources(); track s.name) {
+        <mat-option [value]="s.name">{{ s.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Account</mat-label>
+    <mat-select [value]="store.accountId()" (selectionChange)="store.selectAccount($event.value)">
+      @for (a of store.accounts(); track a.account_id) {
+        <mat-option [value]="a.account_id">{{ a.client_name }} ({{ a.account_id }})</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (store.sourceInfo()?.supports_upload) {
+    <div class="upload">
+      <input #fileInput type="file" accept=".csv" hidden (change)="onFile($event)" />
+      <button mat-stroked-button type="button" [disabled]="uploading() || !store.accountId()" (click)="fileInput.click()">
+        <mat-icon>upload_file</mat-icon> Load Positions
+      </button>
+      @if (store.hasUpload()) {
+        <button mat-button type="button" (click)="useDefaultPositions()">Use default positions file</button>
+      }
+    </div>
+  }
+
+  <mat-form-field appearance="outline">
+    <mat-label>Model portfolio</mat-label>
+    <mat-select [value]="store.modelId()" (selectionChange)="store.selectModel($event.value)">
+      @for (m of store.models(); track m.model_id) {
+        <mat-option [value]="m.model_id">{{ modelLabel(m.model_id, m.model_name) }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</section>
+
+@if (store.plan(); as plan) {
+  <section aria-labelledby="sec-plan">
+    <h3 id="sec-plan">Plan assumptions</h3>
+    <mat-form-field appearance="outline">
+      <mat-label>Retirement age</mat-label>
+      <input matInput type="number" [min]="store.account()?.age ?? 0" [max]="plan.plan_end_age - 1"
+             [ngModel]="plan.retirement_age" (ngModelChange)="setPlan('retirement_age', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Plan end age</mat-label>
+      <input matInput type="number" [min]="plan.retirement_age + 1" max="110"
+             [ngModel]="plan.plan_end_age" (ngModelChange)="setPlan('plan_end_age', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Annual contribution ($)</mat-label>
+      <input matInput type="number" min="0" step="1000"
+             [ngModel]="plan.annual_contribution" (ngModelChange)="setPlan('annual_contribution', $event)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Annual withdrawal (today's $)</mat-label>
+      <input matInput type="number" min="0" step="1000"
+             [ngModel]="plan.annual_withdrawal" (ngModelChange)="setPlan('annual_withdrawal', $event)" />
+    </mat-form-field>
+  </section>
+}
+
+<section aria-labelledby="sec-sim">
+  <h3 id="sec-sim">Simulation</h3>
+  <label class="slider-label" for="trials">Trials: {{ store.simSettings().trials.toLocaleString('en-US') }}</label>
+  <mat-slider min="0" [max]="trialChoices().length - 1" step="1" discrete [displayWith]="trialLabel">
+    <input id="trials" matSliderThumb [value]="trialIndex()" (valueChange)="setTrialIndex($event)" />
+  </mat-slider>
+
+  <mat-form-field appearance="outline"
+                  matTooltip="The same seed and settings always reproduce the identical result.">
+    <mat-label>Random seed</mat-label>
+    <input matInput type="number" min="0" [ngModel]="store.simSettings().seed" (ngModelChange)="setSeed($event)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Sampling method</mat-label>
+    <mat-select [value]="store.simSettings().sampling"
+                (selectionChange)="store.updateSimSettings({ sampling: $event.value })">
+      @for (s of samplingMethods; track s) {
+        <mat-option [value]="s">{{ samplingLabels[s] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Correlation copula</mat-label>
+    <mat-select [value]="store.simSettings().copula"
+                (selectionChange)="store.updateSimSettings({ copula: $event.value })">
+      @for (c of copulas; track c) {
+        <mat-option [value]="c">{{ copulaLabels[c] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <label class="slider-label" for="df">Student-t degrees of freedom: {{ store.simSettings().copula_df }}</label>
+  <mat-slider min="3" max="30" step="1" discrete [disabled]="store.simSettings().copula !== 'student_t'">
+    <input id="df" matSliderThumb [value]="store.simSettings().copula_df"
+           (valueChange)="store.updateSimSettings({ copula_df: $event })" />
+  </mat-slider>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Return distribution</mat-label>
+    <mat-select [value]="store.simSettings().distribution"
+                (selectionChange)="store.updateSimSettings({ distribution: $event.value })">
+      <mat-option [value]="null">As configured</mat-option>
+      @for (d of distributions(); track d) {
+        <mat-option [value]="d">{{ d }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</section>
+
+<section aria-labelledby="sec-ai">
+  <h3 id="sec-ai">AI model</h3>
+  <mat-form-field appearance="outline">
+    <mat-label>Provider</mat-label>
+    <mat-select [value]="store.llm().provider" (selectionChange)="store.selectProvider($event.value)">
+      @for (p of store.llmProviders(); track p.id) {
+        <mat-option [value]="p.id">{{ p.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Model</mat-label>
+    <mat-select [value]="store.llm().model" (selectionChange)="store.selectLlmModel($event.value)">
+      @for (m of store.llmProvider()?.models ?? []; track m) {
+        <mat-option [value]="m">{{ m }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  @if (store.llmProvider(); as p) {
+    @if (p.id === webllmId) {
+      @if (webGpu) {
+        <p class="key ok">
+          Runs on your GPU inside this browser. The first use downloads the model ({{ webllmSize() }}),
+          which is then cached. Tools still run in the back end.
+        </p>
+        @if (webllm.status() === 'loading') {
+          <p class="key">{{ webllm.progressText() }}</p>
+        }
+      } @else {
+        <p class="key warn">⚠️ This browser does not support WebGPU. Use a recent Chrome or Edge.</p>
+      }
+    }
+    @if (p.api_key_env) {
+      @if (p.api_key_set) {
+        <p class="key ok">✅ API key found in <code>{{ p.api_key_env }}</code></p>
+      } @else {
+        <p class="key warn">⚠️ Set <code>{{ p.api_key_env }}</code> in your <code>.env</code> file to use {{ p.label }}.</p>
+      }
+    }
+  }
+</section>

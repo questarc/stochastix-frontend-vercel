@@ -1,0 +1,45 @@
+@if (store.loading()) {
+  <mat-progress-bar mode="indeterminate" aria-label="Loading orders" />
+}
+<h2>Order blotter</h2>
+
+@if (store.count() === 0) {
+  <p class="empty" data-testid="orders-empty">
+    No orders yet. Generate them in the <strong>Rebalance</strong> tab, or ask the Advisor AI to "simulate and rebalance".
+  </p>
+} @else {
+  <p class="caption">Generating orders again for an account replaces its pending orders.</p>
+  <div class="metrics">
+    <mat-card class="metric"><span class="label">Orders</span><span class="value">{{ store.count() }}</span></mat-card>
+    <mat-card class="metric"><span class="label">Accounts</span><span class="value">{{ store.accountCount() }}</span></mat-card>
+    <mat-card class="metric"><span class="label">Total sells</span><span class="value">{{ store.totalSells() | money }}</span></mat-card>
+    <mat-card class="metric"><span class="label">Total buys</span><span class="value">{{ store.totalBuys() | money }}</span></mat-card>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="exportOrders('csv')"><mat-icon>download</mat-icon> Export CSV</button>
+    <button mat-stroked-button type="button" (click)="exportOrders('json')"><mat-icon>download</mat-icon> Export JSON</button>
+    <button mat-button color="warn" type="button" (click)="clearOrders()"><mat-icon>delete</mat-icon> Clear orders</button>
+  </div>
+}
+
+<div class="table-wrap" [hidden]="store.count() === 0">
+  <table mat-table matSort [dataSource]="dataSource" class="mat-elevation-z1">
+    @for (col of columns; track col) {
+      <ng-container [matColumnDef]="col">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ col }}</th>
+        <td mat-cell *matCellDef="let o" [class.sell]="col === 'side' && o.side === 'Sell'"
+            [class.buy]="col === 'side' && o.side === 'Buy'">
+          @switch (col) {
+            @case ('est_price') { {{ o.est_price | money: true }} }
+            @case ('est_value') { {{ o.est_value | money }} }
+            @default { {{ o[col] }} }
+          }
+        </td>
+      </ng-container>
+    }
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[10, 25, 50]" pageSize="10" aria-label="Orders page" />
+</div>

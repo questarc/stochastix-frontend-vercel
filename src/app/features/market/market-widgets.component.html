@@ -1,0 +1,111 @@
+<div class="bar">
+  <h3>📊 MarketWatch</h3>
+  <span class="notice">Third-party information, shown as published. Not investment advice.</span>
+  <button mat-button type="button" (click)="collapsed.set(!collapsed())" [attr.aria-expanded]="!collapsed()"
+          data-testid="market-toggle">
+    <mat-icon>{{ collapsed() ? 'expand_more' : 'expand_less' }}</mat-icon> {{ collapsed() ? 'Show' : 'Hide' }}
+  </button>
+</div>
+
+@if (!collapsed()) {
+  <div class="widgets">
+    <!-- MarketAnalyzerAgent -->
+    <mat-card class="widget" data-testid="widget-news">
+      <header>
+        <span class="title">📰 Economic news</span>
+        <button mat-icon-button type="button" aria-label="Refresh news" (click)="refresh('news')"><mat-icon>refresh</mat-icon></button>
+      </header>
+      @if (loading().news) { <mat-progress-bar mode="indeterminate" /> }
+      <ul class="list">
+        @for (n of news()?.items ?? []; track n.url + n.title) {
+          <li>
+            <a [href]="n.url" target="_blank" rel="noopener" class="headline">{{ n.title }}</a>
+            <div class="meta">
+              {{ n.source }}@if (n.published_at) { · {{ n.published_at | date: 'MMM d, h:mm a' }} }
+              @for (t of n.topics; track t) { <span class="chip">{{ t }}</span> }
+            </div>
+          </li>
+        } @empty {
+          @if (!loading().news) { <li class="empty">No news available right now.</li> }
+        }
+      </ul>
+      <footer>
+        @if (errors().news; as e) { <span class="err">⚠️ {{ e }}</span> }
+        @for (e of news()?.errors ?? []; track e.source) { <span class="err">{{ e.source }} unavailable</span> }
+        @if (news()?.updated_at; as u) { <span>Updated {{ u | date: 'h:mm a' }}</span> }
+      </footer>
+    </mat-card>
+
+    <!-- EarningsAgent -->
+    <mat-card class="widget" data-testid="widget-earnings">
+      <header>
+        <span class="title">📈 Upcoming earnings <small>(14 days)</small></span>
+        <button mat-icon-button type="button" aria-label="Refresh earnings" (click)="refresh('earnings')"><mat-icon>refresh</mat-icon></button>
+      </header>
+      @if (loading().earnings) { <mat-progress-bar mode="indeterminate" /> }
+      <table class="table">
+        <tbody>
+          @for (e of earnings()?.items ?? []; track e.symbol + e.date) {
+            <tr>
+              <td class="date">{{ e.date | date: 'EEE MMM d' }}</td>
+              <td><b>{{ e.symbol }}</b>
+                @if (e.held_by.length) { <span class="held" [matTooltip]="held(e.held_by)">Held</span> }
+                <div class="sub">{{ e.name }}</div></td>
+              <td class="num">
+                @if (e.eps_forecast !== null) { EPS est. ${{ e.eps_forecast | number: '1.2-2' }} } @else { — }
+                <div class="sub">{{ e.time }}</div></td>
+            </tr>
+          } @empty {
+            @if (!loading().earnings) { <tr><td class="empty">No earnings found for the next 14 days.</td></tr> }
+          }
+        </tbody>
+      </table>
+      <footer>
+        @if (errors().earnings; as e) { <span class="err">⚠️ {{ e }}</span> }
+        @if (earnings()?.errors?.length) { <span class="err">{{ earnings()!.errors.length }} day(s) unavailable</span> }
+        <span>Source: Nasdaq</span>
+        @if (earnings()?.updated_at; as u) { <span>Updated {{ u | date: 'h:mm a' }}</span> }
+      </footer>
+    </mat-card>
+
+    <!-- CorporateActionsAgent -->
+    <mat-card class="widget" data-testid="widget-actions">
+      <header>
+        <span class="title">🏦 Corporate actions <small>(30 days)</small></span>
+        <button mat-button type="button" class="filter" (click)="heldOnly.set(!heldOnly())" data-testid="held-only">
+          {{ heldOnly() ? 'All' : 'Client holdings' }}
+        </button>
+        <button mat-icon-button type="button" aria-label="Refresh corporate actions" (click)="refresh('actions')"><mat-icon>refresh</mat-icon></button>
+      </header>
+      @if (loading().actions) { <mat-progress-bar mode="indeterminate" /> }
+      <table class="table">
+        <tbody>
+          @for (a of visibleActions(); track a.type + a.symbol + a.ex_date) {
+            <tr>
+              <td class="date">{{ a.ex_date | date: 'MMM d' }}</td>
+              <td><b>{{ a.symbol }}</b> <span class="type" [class.split]="a.type === 'Split'">{{ a.type }}</span>
+                @if (a.held_by.length) { <span class="held" [matTooltip]="held(a.held_by)">Held</span> }
+                <div class="sub">{{ a.name }}</div></td>
+              <td class="num">
+                @if (a.type === 'Dividend') { ${{ a.amount | number: '1.2-4' }}
+                  @if (a.pay_date) { <div class="sub">Pays {{ a.pay_date | date: 'MMM d' }}</div> }
+                } @else { {{ a.ratio }} }
+              </td>
+            </tr>
+          } @empty {
+            @if (!loading().actions) {
+              <tr><td class="empty">{{ heldOnly() ? 'No upcoming actions for client holdings.' : 'No corporate actions found.' }}</td></tr>
+            }
+          }
+        </tbody>
+      </table>
+      <footer>
+        @if (errors().actions; as e) { <span class="err">⚠️ {{ e }}</span> }
+        @if (actions()?.errors?.length) { <span class="err">{{ actions()!.errors.length }} source(s) unavailable</span> }
+        <span>Source: Nasdaq · ex-date shown</span>
+        @if (actions()?.updated_at; as u) { <span>Updated {{ u | date: 'h:mm a' }}</span> }
+      </footer>
+    </mat-card>
+  </div>
+
+}

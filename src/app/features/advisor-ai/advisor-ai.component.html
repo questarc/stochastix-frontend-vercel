@@ -1,0 +1,54 @@
+@if (open()) {
+  <section class="panel" [class.max]="size() === 'max'" [class.min]="size() === 'min'"
+           role="dialog" aria-label="Stochastix AI chat" data-testid="chat-panel">
+    <header class="header">
+      <strong>Stochastix AI</strong>
+      <span class="spacer"></span>
+      <button mat-button type="button" [disabled]="messages().length === 0" (click)="newConversation()">
+        New conversation
+      </button>
+      <button class="icon" type="button" (click)="toggleMinimize()" data-testid="btn-min"
+              [attr.aria-label]="size() === 'min' ? 'Restore' : 'Minimize'"
+              [attr.title]="size() === 'min' ? 'Restore' : 'Minimize'">{{ size() === 'min' ? '▢' : '—' }}</button>
+      <button class="icon" type="button" (click)="toggleMaximize()" data-testid="btn-max"
+              [attr.aria-label]="size() === 'max' ? 'Restore' : 'Maximize'"
+              [attr.title]="size() === 'max' ? 'Restore' : 'Maximize'">{{ size() === 'max' ? '❐' : '⛶' }}</button>
+    </header>
+
+    @if (size() !== 'min') {
+      <p class="caption">
+        Answers come from the simulation engine and source data, explained by
+        <strong>{{ providerLabel() }} · {{ modelName() }}</strong>. Projections are not guarantees.
+      </p>
+
+      <div class="messages" #scroller aria-live="polite">
+        @for (m of messages(); track $index) {
+          <app-chat-message [message]="m" />
+        }
+        @if (sending()) {
+          @if (isWebLlm() && webllm.status() === 'loading') {
+            <p class="typing" data-testid="typing">
+              Loading the model in your browser ({{ (webllm.progress() * 100).toFixed(0) }}%)… {{ webllm.progressText() }}
+            </p>
+          } @else {
+            <p class="typing" data-testid="typing">Thinking… (local models can take up to a minute)</p>
+          }
+        }
+      </div>
+
+      <div class="input-row">
+        <textarea rows="2" data-testid="chat-input" aria-label="Message"
+                  placeholder="Ask about this client's plan or how the simulation works"
+                  [ngModel]="draft()" (ngModelChange)="draft.set($event)" (keydown)="onKeydown($event)"></textarea>
+        <button mat-flat-button color="primary" type="button" [disabled]="sending() || !draft().trim()" (click)="send()">
+          Send
+        </button>
+      </div>
+    }
+  </section>
+}
+
+<button class="fab" type="button" (click)="toggleOpen()" data-testid="chat-fab"
+        [attr.aria-label]="open() ? 'Close' : 'Open Stochastix AI'">
+  {{ open() ? '✕ Close' : '💬 Stochastix AI' }}
+</button>

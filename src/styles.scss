@@ -1,0 +1,113 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        tertiary: mat.$azure-palette,
+        theme-type: dark,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      surface: #0b1424,
+      surface-dim: #08101d,
+      surface-bright: #1a2742,
+      surface-container-lowest: #07101c,
+      surface-container-low: #0e1a2e,
+      surface-container: #111e35,
+      surface-container-high: #16243f,
+      surface-container-highest: #1c2c4b,
+      on-surface: #e2e8f0,
+      on-surface-variant: #9fb2cf,
+      outline: #34496e,
+      outline-variant: #22324f,
+    )
+  );
+
+  // Shared app palette (ambient dark blue)
+  --app-bg: #0a1220;
+  --app-panel: rgba(17, 30, 53, 0.72);
+  --app-panel-solid: #111e35;
+  --app-panel-raised: #16243f;
+  --app-border: rgba(96, 140, 210, 0.22);
+  --app-text: #e2e8f0;
+  --app-muted: #9fb2cf;
+  --app-accent: #60a5fa;
+  --app-accent-strong: #2563eb;
+  --app-glow: 0 0 0 1px rgba(96, 165, 250, 0.08), 0 8px 24px rgba(2, 8, 23, 0.55);
+  --app-positive: #4ade80;
+  --app-negative: #f87171;
+  --app-warning: #fbbf24;
+}
+
+body {
+  background:
+    radial-gradient(1100px 600px at 0% -10%, rgba(37, 99, 235, 0.22), transparent 60%),
+    radial-gradient(900px 520px at 100% 0%, rgba(14, 165, 233, 0.12), transparent 60%),
+    radial-gradient(800px 600px at 50% 110%, rgba(30, 58, 138, 0.25), transparent 60%),
+    var(--app-bg);
+  background-attachment: fixed;
+  color: var(--app-text);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+/* You can add global styles to this file, and also import other style files */
+.mat-drawer-container {
+  --mat-sidenav-content-background-color: transparent;
+  background: transparent;
+}
+
+.mat-drawer.mat-sidenav {
+  --mat-sidenav-container-background-color: rgba(8, 16, 30, 0.82);
+  --mat-sidenav-container-divider-color: var(--app-border);
+  backdrop-filter: blur(8px);
+}
+
+.mat-mdc-card {
+  --mat-card-elevated-container-color: var(--app-panel);
+  --mat-card-elevated-container-elevation: none;
+  border: 1px solid var(--app-border);
+  border-top: 2px solid var(--app-accent);
+  box-shadow: var(--app-glow);
+  backdrop-filter: blur(6px);
+}
+
+.mat-mdc-table {
+  --mat-table-background-color: var(--app-panel);
+  border: 1px solid var(--app-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.mat-mdc-paginator {
+  --mat-paginator-container-background-color: transparent;
+}
+
+.mat-expansion-panel {
+  --mat-expansion-container-background-color: var(--app-panel);
+  border: 1px solid var(--app-border);
+}
+
+.mat-mdc-tab-group {
+  --mat-tab-active-indicator-color: var(--app-accent);
+}
+
+.snack-error {
+  --mat-snack-bar-container-color: #991b1b;
+  --mat-snack-bar-supporting-text-color: #fff;
+}

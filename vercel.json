@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://stochastix-backend.vercel.app/api/:path*"
+      "destination": "https://stochastix-backend-vercel.vercel.app/api/:path*"
     },
     {
       "source": "/(.*)",

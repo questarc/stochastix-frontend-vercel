@@ -24,7 +24,7 @@ Results are projections, not guarantees, and not investment advice.
 | ⚖️ Rebalance tab | Drift tolerance, minimum trade, whole shares; trades, allocation after trades, success before/after; Generate orders |
 | 🧾 Orders tab | Blotter with sorting and paging, metrics, Export CSV/JSON, Clear orders; badge with order count |
 | 📖 How it works tab | 30 sample paths chart and methodology panels |
-| 💬 Stochastix AI chat | Available on every page; example questions, markdown answers, tool trace, orders notice and **🔊 Create audio** |
+| 💬 Stochastix AI chat | Available on every page; markdown answers, tool trace and orders notice |
 
 ## Simulation
 - Re-runs automatically when the account, model, plan or settings change: 400 ms debounce, duplicate requests skipped,
@@ -35,7 +35,6 @@ Results are projections, not guarantees, and not investment advice.
   histograms ("No trials ran out of money" when none fail).
 
 ## Audio summary (VoiceGenAgent)
-- **Create audio** under each AI answer (not under user or error messages) → in-chat player and **Download** (WAV).
 - The AI can also create audio on request. Numbers are reworded for speech, never changed; disclaimer always included.
 
 ## MarketWatch (Market agents)

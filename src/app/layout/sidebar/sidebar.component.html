@@ -118,42 +118,14 @@
 </section>
 
 <section aria-labelledby="sec-ai">
-  <h3 id="sec-ai">AI model</h3>
-  <mat-form-field appearance="outline">
-    <mat-label>Provider</mat-label>
-    <mat-select [value]="store.llm().provider" (selectionChange)="store.selectProvider($event.value)">
-      @for (p of store.llmProviders(); track p.id) {
-        <mat-option [value]="p.id">{{ p.label }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Model</mat-label>
-    <mat-select [value]="store.llm().model" (selectionChange)="store.selectLlmModel($event.value)">
-      @for (m of store.llmProvider()?.models ?? []; track m) {
-        <mat-option [value]="m">{{ m }}</mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
+  <h3 id="sec-ai">AI assistant</h3>
+  <p>{{ store.llmProvider()?.label ?? 'NVIDIA' }} · {{ store.llm().model }}</p>
   @if (store.llmProvider(); as p) {
-    @if (p.id === webllmId) {
-      @if (webGpu) {
-        <p class="key ok">
-          Runs on your GPU inside this browser. The first use downloads the model ({{ webllmSize() }}),
-          which is then cached. Tools still run in the back end.
-        </p>
-        @if (webllm.status() === 'loading') {
-          <p class="key">{{ webllm.progressText() }}</p>
-        }
-      } @else {
-        <p class="key warn">⚠️ This browser does not support WebGPU. Use a recent Chrome or Edge.</p>
-      }
-    }
     @if (p.api_key_env) {
       @if (p.api_key_set) {
         <p class="key ok">✅ API key found in <code>{{ p.api_key_env }}</code></p>
       } @else {
-        <p class="key warn">⚠️ Set <code>{{ p.api_key_env }}</code> in your <code>.env</code> file to use {{ p.label }}.</p>
+        <p class="key warn">⚠️ Set <code>{{ p.api_key_env }}</code> in the backend environment to use {{ p.label }}.</p>
       }
     }
   }

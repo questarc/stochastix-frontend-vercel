@@ -4,7 +4,6 @@ import { LlmProvider, LlmSelection } from '../models/llm';
 import { PlanInputs, SimSettings, SimulationRequest } from '../models/simulation';
 import { LlmService } from '../services/llm.service';
 import { SourcesService } from '../services/sources.service';
-import { WEBLLM_PROVIDER } from '../webllm/webllm.models';
 
 export const DEFAULT_SIM_SETTINGS: SimSettings = {
   trials: 10_000,
@@ -33,7 +32,10 @@ export class WorkspaceStore {
   readonly simSettings = signal<SimSettings>({ ...DEFAULT_SIM_SETTINGS });
   readonly options = signal<ConfigOptions | null>(null);
   readonly llmProviders = signal<LlmProvider[]>([]);
-  readonly llm = signal<LlmSelection>({ provider: 'ollama', model: null });
+  readonly llm = signal<LlmSelection>({
+    provider: 'nvidia',
+    model: 'nvidia/nemotron-3.5-lightning-30b-a3b',
+  });
   readonly uploadedAccounts = signal<ReadonlySet<string>>(new Set());
 
   readonly sourceInfo = computed(() => this.sources().find((s) => s.name === this.source()) ?? null);
@@ -59,9 +61,7 @@ export class WorkspaceStore {
       if (list.length) this.selectSource(list[0].name);
     });
     this.llmApi.providers().subscribe((providers) => {
-      const all = [...providers, WEBLLM_PROVIDER];
-      this.llmProviders.set(all);
-      this.llm.set({ provider: all[0].id, model: all[0].default_model });
+      this.llmProviders.set(providers);
     });
   }
 
@@ -102,15 +102,6 @@ export class WorkspaceStore {
 
   updateSimSettings(patch: Partial<SimSettings>): void {
     this.simSettings.update((s) => ({ ...s, ...patch }));
-  }
-
-  selectProvider(providerId: string): void {
-    const provider = this.llmProviders().find((p) => p.id === providerId);
-    this.llm.set({ provider: providerId, model: provider?.default_model ?? null });
-  }
-
-  selectLlmModel(model: string): void {
-    this.llm.update((l) => ({ ...l, model }));
   }
 
   markUploaded(uploaded: boolean): void {

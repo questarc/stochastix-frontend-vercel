@@ -11,8 +11,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Copula, PlanInputs, SamplingMethod } from '../../core/models/simulation';
 import { SourcesService } from '../../core/services/sources.service';
 import { WorkspaceStore } from '../../core/state/workspace.store';
-import { WEBLLM_MODELS, WEBLLM_PROVIDER_ID, webGpuSupported } from '../../core/webllm/webllm.models';
-import { WebLlmService } from '../../core/webllm/webllm.service';
 
 export const TRIAL_CHOICES = [1_000, 5_000, 10_000, 25_000, 50_000];
 export const SAMPLING_LABELS: Record<SamplingMethod, string> = {
@@ -36,13 +34,6 @@ export class SidebarComponent {
   protected readonly store = inject(WorkspaceStore);
   private readonly sourcesApi = inject(SourcesService);
   private readonly snackBar = inject(MatSnackBar);
-  protected readonly webllm = inject(WebLlmService);
-  protected readonly webllmId = WEBLLM_PROVIDER_ID;
-  protected readonly webGpu = webGpuSupported();
-  protected readonly webllmSize = computed(
-    () => WEBLLM_MODELS.find((m) => m.id === this.store.llm().model)?.size ?? '1–5 GB',
-  );
-
   protected readonly samplingLabels = SAMPLING_LABELS;
   protected readonly copulaLabels = COPULA_LABELS;
   protected readonly samplingMethods = Object.keys(SAMPLING_LABELS) as SamplingMethod[];

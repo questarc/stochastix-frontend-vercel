@@ -4,18 +4,16 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideMarkdown } from 'ngx-markdown';
 import { of } from 'rxjs';
-import { AudioInfo, ChatMessage, ChatResponse } from '../core/models/chat';
+import { ChatMessage, ChatResponse } from '../core/models/chat';
 import { Order } from '../core/models/order';
 import { RebalanceResponse } from '../core/models/rebalance';
 import { SimulationResponse, SimulationResult } from '../core/models/simulation';
 import { ChatService } from '../core/services/chat.service';
 import { OrdersService } from '../core/services/orders.service';
 import { RebalanceService } from '../core/services/rebalance.service';
-import { VoiceService } from '../core/services/voice.service';
 import { OrdersStore } from '../core/state/orders.store';
 import { SimulationStore } from '../core/state/simulation.store';
 import { AdvisorAiComponent } from './advisor-ai/advisor-ai.component';
-import { ChatMessageComponent } from './advisor-ai/chat-message.component';
 import { RebalanceTabComponent } from './rebalance/rebalance-tab.component';
 import { SimulationTabComponent } from './simulation/simulation-tab.component';
 
@@ -109,12 +107,14 @@ describe('AdvisorAiComponent', () => {
     expect(el.querySelector('[data-testid="orders-notice"]')?.textContent).toContain('1 order(s) added');
   });
 
-  it('shows the Create audio button under the AI answer in the chat window', async () => {
+  it('does not show voice controls under AI answers', async () => {
     const { fixture, cmp, el } = setup();
     cmp.open.set(true);
     cmp.send('Compare the current portfolio with the model portfolio.');
     await fixture.whenStable();
-    expect(el.querySelector('[data-testid="voice-create"]')?.textContent).toContain('Create audio');
+    expect(el.querySelector('[data-testid="voice-create"]')).toBeNull();
+    expect(el.querySelector('[data-testid="voice-download"]')).toBeNull();
+    expect(el.querySelector('audio')).toBeNull();
   });
 
   it('moves through normal → max → min → normal and hides the input when minimized', async () => {
@@ -149,57 +149,5 @@ describe('AdvisorAiComponent', () => {
     expect(el.querySelector('.examples')).toBeNull();
     expect(el.querySelector('[data-testid="chat-panel"]')?.textContent).not.toContain('Compare the current portfolio');
     expect(el.querySelector('[data-testid="chat-input"]')).toBeTruthy();
-  });
-});
-
-describe('ChatMessageComponent audio (VoiceGenAgent)', () => {
-  const AUDIO: AudioInfo = {
-    audio_id: 'abc', account_id: 'A1001', client_name: 'Jane Smith', script: 'Retirement plan update…',
-    voice: 'en_US-lessac-medium', duration_seconds: 24, created_at: '2026-10-27T00:00:00Z',
-    file_name: 'A1001_summary_20261027_000000.wav', url: '/voice/abc',
-  };
-
-  function setup(message: ChatMessage) {
-    const calls: { text: string; accountId?: string | null }[] = [];
-    TestBed.configureTestingModule({
-      imports: [ChatMessageComponent],
-      providers: [
-        ...baseProviders,
-        { provide: VoiceService, useValue: {
-          create: (text: string, accountId?: string | null) => { calls.push({ text, accountId }); return of(AUDIO); },
-          playUrl: () => 'http://api/voice/abc', downloadUrl: () => 'http://api/voice/abc?download=true',
-        } },
-      ],
-    });
-    const fixture = TestBed.createComponent(ChatMessageComponent);
-    fixture.componentRef.setInput('message', message);
-    return { fixture, calls, el: fixture.nativeElement as HTMLElement };
-  }
-
-  it('creates audio from the summary and offers play and download', async () => {
-    const { fixture, calls, el } = setup({ role: 'assistant', text: 'Success is 76.8%.', accountId: 'A1001' });
-    await fixture.whenStable();
-    (el.querySelector('[data-testid="voice-create"]') as HTMLButtonElement).click();
-    await fixture.whenStable();
-    expect(calls).toEqual([{ text: 'Success is 76.8%.', accountId: 'A1001' }]);
-    expect(el.querySelector('audio')?.getAttribute('src')).toBe('http://api/voice/abc');
-    const link = el.querySelector('[data-testid="voice-download"]') as HTMLAnchorElement;
-    expect(link.getAttribute('download')).toBe(AUDIO.file_name);
-    expect(link.getAttribute('href')).toContain('download=true');
-  });
-
-  it('shows the player directly when the agent already created audio, and hides it for user/error messages', async () => {
-    const agent = setup({ role: 'assistant', text: 'Ready.', audio: AUDIO });
-    await agent.fixture.whenStable();
-    expect(agent.el.querySelector('audio')).toBeTruthy();
-    expect(agent.el.querySelector('[data-testid="voice-create"]')).toBeNull();
-    TestBed.resetTestingModule();
-    const user = setup({ role: 'user', text: 'hi' });
-    await user.fixture.whenStable();
-    expect(user.el.querySelector('[data-testid="voice"]')).toBeNull();
-    TestBed.resetTestingModule();
-    const error = setup({ role: 'assistant', text: '⚠️ failed', error: true });
-    await error.fixture.whenStable();
-    expect(error.el.querySelector('[data-testid="voice"]')).toBeNull();
   });
 });

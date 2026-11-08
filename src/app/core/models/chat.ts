@@ -41,8 +41,6 @@ export interface ChatMessage {
   toolCalls?: ToolCall[];
   ordersAdded?: number;
   error?: boolean;
-  accountId?: string | null;
-  audio?: AudioInfo | null;
 }
 
 export type ChatWindowSize = 'normal' | 'max' | 'min';

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-// Re-enable Predictive Pricing after its external LSTM backend is configured.
+// This feature branch enables local LSTM inference; production keeps the route hidden.
 export const routes: Routes = [
   {
     path: '',
@@ -31,6 +31,12 @@ export const routes: Routes = [
     title: 'Time Series & Statistical Models | Stochastix AI',
     loadComponent: () =>
       import('./features/time-series-agent/time-series-agent.component').then((m) => m.TimeSeriesAgentComponent),
+  },
+  {
+    path: 'predictive-pricing',
+    title: 'Predictive Pricing Agent | Stochastix AI',
+    loadComponent: () =>
+      import('./features/predictive-pricing/predictive-pricing.component').then((m) => m.PredictivePricingComponent),
   },
   {
     path: 'technical-indicators',

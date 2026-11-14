@@ -32,6 +32,12 @@ export const routes: Routes = [
       import('./features/time-series-agent/time-series-agent.component').then((m) => m.TimeSeriesAgentComponent),
   },
   {
+    path: 'predictive-pricing',
+    title: 'Predictive Pricing Agent | Stochastix AI',
+    loadComponent: () =>
+      import('./features/predictive-pricing/predictive-pricing.component').then((m) => m.PredictivePricingComponent),
+  },
+  {
     path: 'technical-indicators',
     title: 'Technical Indicators | Stochastix AI',
     loadComponent: () =>

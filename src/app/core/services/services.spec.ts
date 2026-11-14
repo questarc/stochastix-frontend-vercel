@@ -14,6 +14,7 @@ import { AudioInfo } from '../models/chat';
 import { EtradeService } from './etrade.service';
 import { FidelityService } from './fidelity.service';
 import { TimeSeriesService } from './time-series.service';
+import { PredictivePricingService } from './predictive-pricing.service';
 
 const API = environment.apiBaseUrl;
 const SIM = { account_id: 'A1001', trials: 10000, seed: 42, sampling: 'prng', copula: 'gaussian', copula_df: 5 } as const;
@@ -165,6 +166,13 @@ describe('API services', () => {
     expect(body.getAll('predictor_columns')).toEqual(['Macro']);
     expect(body.get('horizon_periods')).toBe('5');
     expect(body.get('model_type')).toBe('logistic');
+  });
+
+  it('PredictivePricingService submits ticker and entered price', () => {
+    TestBed.inject(PredictivePricingService).predict('AAPL', 225).subscribe();
+    expectCall('POST', `${API}/predictive-pricing/predict`, { symbol: 'AAPL', current_price: 225 }, {
+      symbol: 'AAPL', current_price: 225, history: [], forecasts: [], observations: 20, model: 'PyTorch LSTM',
+    });
   });
 
   it('SimulationService posts the request', () => {

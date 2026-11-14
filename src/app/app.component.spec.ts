@@ -62,6 +62,7 @@ describe('AppComponent', () => {
       'E*TRADE Agent',
       'Fidelity Agent',
       'Time Series Agent',
+      'Predictive Pricing Agent',
       'Technical Indicators Agent',
     ]);
     expect(routes.some((route) => route.path === 'quant-models')).toBe(true);

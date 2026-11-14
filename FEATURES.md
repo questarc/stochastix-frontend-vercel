@@ -15,6 +15,7 @@ Results are projections, not guarantees, and not investment advice.
 | 📄 E*TRADE Agent | Upload text-based PDFs; transfer-activity documents show parsed cash movement totals and rows |
 | 📄 Fidelity Agent | Fidelity PDF analytics and positions CSV import with view-only holdings metrics |
 | 📉 Time Series | Upload date-aligned historical CSV data; fit linear forward-return and logistic up-probability regressions |
+| 🔮 Predictive Pricing Agent | Enter a stock ticker and current price to view five LSTM-based daily direction and percent-change estimates with an expected-price chart |
 | 📊 Technical Indicators | Calculate and chart RSI, MACD, and Bollinger Bands from a sample or uploaded historical price CSV |
 | Sidebar — Stochastix AI | Choose source agent, account and model portfolio; load a positions CSV or go back to the default file |
 | Sidebar — Plan assumptions | Retirement age, plan end age, annual contribution, annual withdrawal (reset per account) |
@@ -85,6 +86,12 @@ Results are projections, not guarantees, and not investment advice.
   and actual/predicted charts.
 - CSV contents are processed in memory and not retained. The model estimates statistical associations, not causal
   effects or investment advice; the holdout is not a validated trading strategy.
+
+## Predictive Pricing Agent
+- Enter a stock ticker and the current price to request a five-trading-session forecast from the backend.
+- The backend fetches daily Open, High, Low, Close and Volume values from Yahoo Finance for the latest 30 calendar days, then trains a CPU PyTorch LSTM per request. At least 12 complete observations are required.
+- Results show one `Up` / `Down` direction and expected percent price change per day, expected prices anchored to the entered price, recent close history, and a combined historical/forecast chart.
+- Market data availability and trading dates depend on Yahoo Finance. Forecasts are experimental, use a short history, and are not investment advice or validated trading signals. The entered price is used as the current-price anchor, not as a replacement for Yahoo Finance's model inputs.
 
 ## Technical Indicators
 - Calculates Wilder RSI (14 periods), MACD (12/26 EMA with a 9-period signal), and 20-period Bollinger Bands

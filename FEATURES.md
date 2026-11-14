@@ -17,6 +17,8 @@ Results are projections, not guarantees, and not investment advice.
 | 📉 Time Series | Upload date-aligned historical CSV data; fit linear forward-return and logistic up-probability regressions |
 | 🔮 Predictive Pricing Agent | Enter a stock ticker and current price to view five LSTM-based daily direction and percent-change estimates with an expected-price chart |
 | 📊 Technical Indicators | Calculate and chart RSI, MACD, and Bollinger Bands from a sample or uploaded historical price CSV |
+
+Predictive Pricing is temporarily hidden from navigation and routing until its separately hosted LSTM service is configured for Vercel.
 | Sidebar — Stochastix AI | Choose source agent, account and model portfolio; load a positions CSV or go back to the default file |
 | Sidebar — Plan assumptions | Retirement age, plan end age, annual contribution, annual withdrawal (reset per account) |
 | Sidebar — Simulation | Trials (1k–50k), seed, sampling (PRNG/LHS/Sobol), copula (Gaussian/Student-t, df 3–30), return distribution |

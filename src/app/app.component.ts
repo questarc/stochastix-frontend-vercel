@@ -35,9 +35,6 @@ import { APP_TITLE } from './layout/header/header.component';
         <a mat-button routerLink="/time-series-agent" routerLinkActive="active" ariaCurrentWhenActive="page">
           Time Series Agent
         </a>
-        <a mat-button routerLink="/predictive-pricing" routerLinkActive="active" ariaCurrentWhenActive="page">
-          Predictive Pricing Agent
-        </a>
         <a mat-button routerLink="/technical-indicators" routerLinkActive="active" ariaCurrentWhenActive="page">
           Technical Indicators Agent
         </a>
